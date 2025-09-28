@@ -1,0 +1,23 @@
+---
+title: "r_md"
+output: word_document
+date: "2025-09-28"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+carmpg <- read.csv("../data/mpg_data.csv", na.strings = "")
+head(carmpg)
+dim(carmpg)
+View(carmpg)
+str(carmpg)
+summary(carmpg)
+sum(is.na(carmpg))
+colSums(is.na(carmpg))
+
+# knit > knit to word
+```
