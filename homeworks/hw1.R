@@ -1,0 +1,83 @@
+# Question 1
+x1 <- c(2.79, 5.83, 12.3, 3.2, 8.35, 3.4, 0.74)
+x1
+
+# Question 2
+mean(max(x1), min(x1))
+
+# Question 3
+x2 <- c(max(x1), min(x1), mean(x1), x1[3])
+x2
+
+# Question 4
+str1 <- c("Samsung", "Hyundai", "LG")
+str1
+
+# Question 5
+str2 <- c(str1, "SK")
+str3 <- paste(str2, collapse = " & ")
+str3
+
+# Question 6
+z1 <- rep(c(3, 1, 5), 4)
+z1
+
+z2 <- seq(2, 30, by = 4)
+z2
+
+z3 <- rep(c(7, 3, 9), c(4, 3, 5))
+z3
+
+# Question 7
+d1 <- c(as.Date("2025-01-01"), as.Date("2025-12-31"), Sys.Date())
+d1[3] - d1[1]
+d1[2] - d1[3]
+
+# Question 8
+set.seed(101)
+scores <- runif(40, min = 0, max = 100)
+scores_r <- round(scores)
+scores_r
+
+# Question 9
+scores_m <- matrix(scores_r, ncol = 5)
+
+# Question 10
+colMeans(scores_m)
+
+# Question 11
+apply(scores_m, 1, min)
+
+# Question 12
+titanic.df <- read.csv("./data/titanic_hw_new.csv", na.strings = "")
+dim(titanic.df)
+
+# Question 13
+titanic1.df <- titanic.df[, c("PassengerId", "Survived", "Pclass", "Sex", "Age", "SibSp")]
+dim(titanic1.df)
+
+# Question 14
+summary(titanic1.df)
+
+# Question 15
+colSums(is.na(titanic1.df))
+
+# Question 16
+titanic1.df$Age[is.na(titanic1.df$Age)] <- round(mean(titanic1.df$Age, na.rm = T))
+head(titanic1.df)
+
+# Question 17
+titanic2.df <- na.omit(titanic1.df)
+dim(titanic2.df)
+
+# Question 18
+dim(mtcars)
+head(mtcars)
+
+# Question 19
+mtcars$cyl <- factor(mtcars$cyl)
+summary(mtcars)
+
+# Question 20
+mtcars["fuel_efficiency"] <- ifelse(mtcars$mpg >= mean(mtcars$mpg), "bad", "good")
+head(mtcars)
