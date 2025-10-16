@@ -1,0 +1,74 @@
+# Question 1
+titanic.df <- read.csv("./basic/data/titanic_hw.csv", na.strings = "")
+dim(titanic.df)
+
+# Question 2
+titanic.df$AgeG <- floor(titanic.df$Age / 10)
+class(titanic.df$AgeG)
+
+# Question 3
+titanic.df$Pclass <- factor(titanic.df$Pclass)
+titanic.df$Sex <- factor(titanic.df$Sex)
+titanic.df$Embarked <- factor(titanic.df$Embarked)
+titanic.df$AgeG <- factor(titanic.df$AgeG)
+titanic.df$Survived <- factor(titanic.df$Survived)
+
+class(titanic.df$Pclass)
+class(titanic.df$Sex)
+class(titanic.df$Embarked)
+class(titanic.df$AgeG)
+class(titanic.df$Survived)
+
+# Question 4
+set.seed(2)
+
+selected.var <- c("Pclass", "Sex", "Embarked", "AgeG", "Survived")
+train.idx <- sample(x = c(1:dim(titanic.df)[1]), size = dim(titanic.df)[1] * 0.7)
+
+train.df <- titanic.df[train.idx, selected.var]
+valid.df <- titanic.df[-train.idx, selected.var]
+
+dim(train.df)
+dim(valid.df)
+
+# Question 5
+library(e1071)
+
+titanic.nb <- naiveBayes(Survived ~ ., data = train.df)
+pred.prob <- predict(titanic.nb, newdata = valid.df, type = "raw")
+pred.class <- predict(titanic.nb, newdata = valid.df)
+
+head(pred.prob, n = 10)
+head(pred.class, n = 10)
+
+# Question 6
+df <- data.frame(actual = valid.df$Survived, predicted = pred.class, pred.prob, check.names = FALSE)
+df[valid.df$Sex == "male" & valid.df$Pclass == 3 & valid.df$Embarked == "C" & valid.df$AgeG == 3, ]
+
+# Question 7
+new.df <- data.frame(Sex = c("female", "male", "male"), Pclass = c(3, 2, 2), AgeG = c(3, 5, 2), Embarked = c("S", "C", "S"))
+new.df[] <- lapply(new.df, factor)
+pred.class.new.df <- predict(titanic.nb, newdata = new.df)
+pred.class.new.df
+
+# Question 8
+library(pROC)
+
+ROC.titanic <- roc(ifelse(valid.df$Survived == "1", 1, 0), pred.prob[, 2])
+plot(ROC.titanic, col = "pink")
+auc(ROC.titanic)
+
+# Question 9
+library(gains)
+
+gain <- gains(ifelse(valid.df$Survived == "1", 1, 0), pred.prob[, 2])
+gain
+
+# Question 10
+library(caret)
+
+pred.class <- predict(titanic.nb, newdata = train.df)
+confusionMatrix(pred.class, train.df$Survived)
+
+pred.class <- predict(titanic.nb, newdata = valid.df)
+confusionMatrix(pred.class, valid.df$Survived)
