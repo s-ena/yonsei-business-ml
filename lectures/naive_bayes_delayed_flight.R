@@ -86,7 +86,7 @@ class(delays.df$year)
 # look at the first 6 rows of delays.df
 head(delays.df)
 
-# ====================== 3. Data Partitioning ======================
+####################### 3. Data Partitioning #######################
 
 # we will be using only five predictors(10,1,8,4,2) and one outcome var(13)
 selected.var <- c("DAY_WEEK", "CRS_DEP_TIME", "ORIGIN", "DEST", "CARRIER", "Flight.Status")
@@ -109,7 +109,7 @@ valid.df <- delays.df[-train.index, selected.var] # exclude train.index
 dim(valid.df)
 head(valid.df)
 
-########### 4. Naive Bayes Model Training & Prediction ###########
+############ 4. Naive Bayes Model Training & Prediction ############
 
 # ========================= 4-1. Training =========================
 
