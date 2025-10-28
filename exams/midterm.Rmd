@@ -1,0 +1,139 @@
+---
+title: "midterm"
+output: word_document
+date: "2025-10-28"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+################################## Utils ##################################
+
+drop_cols <- function(df, cols) df[, !(names(df) %in% cols)]
+
+################################## Part 1 ##################################
+
+# Question 1
+iris.df <- iris
+
+set.seed(210)
+
+train.idx <- sample(rownames(iris.df), 0.6 * nrow(iris.df))
+valid.idx <- sample(setdiff(rownames(iris.df), train.idx), 0.3 * nrow(iris.df))
+test.idx <- setdiff(rownames(iris.df), union(train.idx, valid.idx))
+
+train.df <- iris.df[train.idx, ]
+valid.df <- iris.df[valid.idx, ]
+test.df <- iris.df[test.idx, ]
+
+dim(train.df)
+dim(valid.df)
+dim(test.df)
+
+# Question 2
+preProc <- caret::preProcess(drop_cols(train.df, "Species"), method = c("center", "scale"))
+
+train.norm.df <- cbind(predict(preProc, drop_cols(train.df, "Species")), Species = train.df$Species)
+valid.norm.df <- cbind(predict(preProc, drop_cols(valid.df, "Species")), Species = valid.df$Species)
+test.norm.df <- cbind(predict(preProc, drop_cols(test.df, "Species")), Species = test.df$Species)
+
+head(train.norm.df, n = 3)
+head(valid.norm.df, n = 3)
+head(test.norm.df, n = 3)
+
+# Question 3
+accuracy.df <- data.frame(k = c(1:15), accuracy = rep(0, 15))
+
+for (i in c(1:15)) {
+  knn.pred <- class::knn(train = drop_cols(train.norm.df, "Species"), test = drop_cols(valid.norm.df, "Species"), cl = train.norm.df$Species, k = i)
+  accuracy.df[i, 2] <- caret::confusionMatrix(knn.pred, valid.norm.df$Species)$overall[1]
+}
+
+options(digits = 2)
+accuracy.df
+
+# Question 4 - reason written in word
+opt.k <- accuracy.df$k[which.max(accuracy.df$accuracy)]
+opt.k
+
+# Question 5
+nn <- class::knn(train = drop_cols(train.norm.df, "Species"), test = drop_cols(test.norm.df, "Species"), cl = train.norm.df$Species, k = 4)
+res.df <- cbind(test.df, Predicted = nn)
+tail(res.df, n = 10)
+
+# Question 6
+caret::confusionMatrix(res.df$Predicted, res.df$Species)
+
+# Question 7
+new.df <- data.frame(Sepal.Length = c(5.2, 5.3, 9.2), Sepal.Width = c(2.7, 3.7, 2.9), Petal.Length = c(4.2, 3.5, 4.0), Petal.Width = c(2.0, 1.9, 1.8))
+
+new.norm.df <- predict(preProc, new.df)
+nn.new <- class::knn(train = drop_cols(train.norm.df, "Species"), test = new.norm.df, cl = train.norm.df$Species, k = 4)
+nn.new
+
+################################## Part 2 ##################################
+
+# Question 8
+auto.df <- read.csv("../data/auto-mpg.csv", na.strings = "")
+auto.df <- auto.df[, !(names(auto.df) %in% c("origin", "car.name"))]
+dim(auto.df)
+
+# Question 9
+auto.df <- auto.df[complete.cases(auto.df), ]
+dim(auto.df)
+
+# Question 10
+str(auto.df)
+
+# Question 11
+set.seed(100)
+
+train.idx <- sample(rownames(auto.df), 0.6 * nrow(auto.df))
+valid.idx <- sample(setdiff(rownames(auto.df), train.idx), 0.2 * nrow(auto.df))
+test.idx <- setdiff(rownames(auto.df), union(train.idx, valid.idx))
+
+train.t.df <- auto.df[train.idx, ]
+valid.t.df <- auto.df[valid.idx, ]
+test.t.df <- auto.df[test.idx, ]
+
+dim(train.t.df)
+dim(valid.t.df)
+dim(test.t.df)
+
+# Question 12
+preProc <- caret::preProcess(drop_cols(train.t.df, "mpg"), method = c("center", "scale"))
+
+train.t.norm.df <- cbind(predict(preProc, drop_cols(train.t.df, "mpg")), mpg = train.t.df$mpg)
+valid.t.norm.df <- cbind(predict(preProc, drop_cols(valid.t.df, "mpg")), mpg = valid.t.df$mpg)
+test.t.norm.df <- cbind(predict(preProc, drop_cols(test.t.df, "mpg")), mpg = test.t.df$mpg)
+
+head(train.t.norm.df, n = 3)
+head(valid.t.norm.df, n = 3)
+head(test.t.norm.df, n = 3)
+
+# Question 13
+rmse.df <- data.frame(k = c(1:15), rmse = rep(0, 15))
+
+for (i in c(1:15)) {
+  knn.t.pred <- FNN::knn.reg(train = drop_cols(train.t.norm.df, "mpg"), test = drop_cols(valid.t.norm.df, "mpg"), y = train.t.norm.df$mpg, k = i)
+  rmse.df[i, 2] <- caret::RMSE(knn.t.pred$pred, valid.t.norm.df$mpg)
+}
+
+options(digits = 3)
+rmse.df
+
+# Question 14 - reason written in word
+opt.t.k <- rmse.df$k[which.min(rmse.df$rmse)]
+opt.t.k
+
+# Question 15
+knn.t.pred <- FNN::knn.reg(train = drop_cols(train.t.norm.df, "mpg"), test = drop_cols(test.t.norm.df, "mpg"), y = train.t.norm.df$mpg, k = 10)
+res.t.df <- cbind(test.t.df, Predicted.mpg = knn.t.pred$pred)
+
+head(res.t.df, n = 10)
+
+# Question 16
+caret::RMSE(knn.t.pred$pred, test.t.df$mpg)
+```
